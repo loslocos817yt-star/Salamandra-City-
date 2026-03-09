@@ -1,1 +1,10 @@
-
+[
+  {
+    "estructura": "casa",
+    "hex": "D0FF00",
+    "lugar": "js/modelos/casa.js"
+  },
+  {
+    "estructura": "edificio",
+    "hex":
+    
