@@ -2,26 +2,36 @@
   {
     "estructura": "casa",
     "hex": "D0FF00",
-    "lugar": "js/modelos/casa.js"
+    "lugar": "js/modelos/casa.js",
+    "png": "map/map.png"
   },
   {
     "estructura": "edificio",
     "hex": "FF0000",
-    "lugar" "js/modelos/edificio.js"
+    "lugar" "js/modelos/edificio.js",
+    "png": "map/map.png"
   },
   {
     "estructura": "arbol",
     "hex": "6F4E37",
-    "lugar": "js/modelos/arbol.js"
+    "lugar": "js/modelos/arbol.js",
+    "png": "map/map.png"
   },
   {
     "estructura": "arbusto"
     "hex": "ADEBB3"
-    "lugar": "js/modelos/arbusto.js"
+    "lugar": "js/modelos/arbusto.js",
+    "png": "map/map.png"
   },
   {
     "estructura": "arma"
     "hex": "0000FF"
-    "lugar": "js/modelos/arma.js
+    "lugar": "js/modelos/arma.js",
+    "png": "map/map.png"
+  },
+  {
+    "estructura": "npcModel.js",
+    "hex":"A020F0",
+    "png": "map/peatones.png"
   }
     
