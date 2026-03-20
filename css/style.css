@@ -1,0 +1,145 @@
+/* ========================================
+   Salamandra Theft Auto - Estilos
+   Archivo: css/style.css
+   ======================================== */
+
+body { 
+    margin: 0; 
+    overflow: hidden; 
+    background-color: #000; 
+    font-family: Arial, sans-serif; 
+    touch-action: none; 
+    -webkit-user-select: none; 
+    user-select: none; 
+}
+
+/* ========== Controles y UI ========== */
+#controles { 
+    position: absolute; 
+    bottom: 40px; 
+    left: 40px; 
+    width: 120px; 
+    height: 120px; 
+    z-index: 10; 
+}
+
+#btn-saltar, 
+#btn-arma, 
+#btn-fuego { 
+    position: absolute; 
+    font-weight: bold; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 100; 
+    border: 2px solid; 
+    box-sizing: border-box;
+}
+
+#btn-saltar { 
+    bottom: 40px; 
+    right: 40px; 
+    width: 70px; 
+    height: 70px; 
+    background: rgba(255, 204, 0, 0.3); 
+    border-color: #ffcc00; 
+    border-radius: 50%; 
+    color: #ffcc00; 
+    pointer-events: auto; 
+    font-size: 11px;
+}
+
+#btn-arma { 
+    bottom: 120px; 
+    right: 40px; 
+    width: 70px; 
+    height: 50px; 
+    background: rgba(0, 255, 255, 0.3); 
+    border-color: cyan; 
+    border-radius: 10px; 
+    color: cyan; 
+    display: none; 
+    pointer-events: auto; 
+    font-size: 12px;
+}
+
+#btn-fuego { 
+    bottom: 40px; 
+    right: 130px; 
+    width: 80px; 
+    height: 80px; 
+    background: rgba(255, 0, 0, 0.4); 
+    border-color: red; 
+    border-radius: 50%; 
+    color: white; 
+    display: none; 
+    pointer-events: auto; 
+    font-size: 13px;
+}
+
+/* ========== Cruceta estilo Minecraft ========== */
+#crosshair {
+    position: absolute; 
+    top: 50%; 
+    left: 50%; 
+    width: 20px; 
+    height: 20px;
+    transform: translate(-50%, -50%); 
+    display: none; 
+    z-index: 1000; 
+    pointer-events: none; 
+}
+
+.c-line { 
+    position: absolute; 
+    background-color: rgba(255, 255, 255, 0.8); 
+    box-shadow: 0 0 2px black; 
+}
+
+.c-v { 
+    top: 0; 
+    left: 9px; 
+    width: 2px; 
+    height: 20px; 
+}
+
+.c-h { 
+    top: 9px; 
+    left: 0; 
+    width: 20px; 
+    height: 2px; 
+}
+
+/* ========== Responsive para m¨®viles ========== */
+@media (max-width: 768px) {
+    #controles {
+        bottom: 20px;
+        left: 20px;
+        width: 100px;
+        height: 100px;
+    }
+    
+    #btn-saltar {
+        bottom: 25px;
+        right: 25px;
+        width: 60px;
+        height: 60px;
+        font-size: 10px;
+    }
+    
+    #btn-arma {
+        bottom: 95px;
+        right: 25px;
+        width: 60px;
+        height: 45px;
+        font-size: 11px;
+    }
+    
+    #btn-fuego {
+        bottom: 25px;
+        right: 95px;
+        width: 70px;
+        height: 70px;
+        font-size: 12px;
+    }
+      }
