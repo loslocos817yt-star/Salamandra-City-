@@ -1,0 +1,164 @@
+/* gui.css - PattitexTEC Edition + Minimap GTA SA 
+   Sistema de Interfaz Completo para Salamandra World (Corazones Verticales) */
+
+:root {
+    --ui-green: #008000;
+    --ui-border: #ffffff;
+    /* Rutas unificadas */
+    --gif-avatar: url('../recursos/ui/game/salamandra.gif');
+    --img-corazon: url('../recursos/ui/game/corazon.png'); 
+}
+
+/* Ocultar barra de scroll */
+html, body {
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Forzar viewport completo en móviles */
+html {
+    height: -webkit-fill-available; /* Safari iOS */
+}
+
+/* Evitar selección de texto al tocar */
+* {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Ocultar barra de URL en iOS */
+body {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+/* Contenedor principal HUD (avatar + vida) */
+.hud-wrapper {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+/* Avatar GIF */
+.salamandra-avatar {
+    width: 64px;
+    height: 64px;
+    background-color: var(--ui-green);
+    border: 3px solid var(--ui-border);
+    background-image: var(--gif-avatar);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    image-rendering: pixelated;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+}
+
+/* Contenedor de corazones */
+.vida-container {
+    display: flex;
+    background-color: var(--ui-green);
+    padding: 6px 10px;
+    border: 3px solid var(--ui-border);
+    gap: 5px;
+    align-items: center;
+    height: 32px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+}
+
+/* Corazones */
+.corazon-ui {
+    width: 32px;
+    height: 32px;
+    background-image: var(--img-corazon);
+    background-repeat: no-repeat;
+    background-size: 100% 200%;
+    image-rendering: auto;
+}
+
+/* Medio corazón */
+.corazon-ui.medio {
+    background-position: center bottom;
+}
+
+/* Corazón vacío */
+.corazon-ui.vacio {
+    opacity: 0.2;
+    filter: grayscale(100%);
+}
+
+/* Botón interacción */
+#btn-interactuar {
+    position: fixed;
+    bottom: 15%;
+    right: 10%;
+    width: 75px;
+    height: 75px;
+    background: rgba(0, 0, 0, 0.85);
+    border: 4px solid var(--ui-border);
+    border-radius: 15px;
+    color: white;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 38px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    transition: transform 0.1s;
+}
+
+#btn-interactuar:active {
+    transform: scale(0.9);
+    background: #fff;
+    color: #000;
+}
+
+/* Diálogo */
+#ui-dialogo {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-width: 600px;
+    background: #000;
+    border: 3px solid var(--ui-green);
+    padding: 20px;
+    color: #fff;
+    font-family: 'Courier New', monospace;
+    display: none;
+}
+
+/* ====================== MINIMAPA GTA SA STYLE ====================== */
+#minimap-container {
+    position: absolute;
+    top: 15px;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid #000000;
+    box-shadow: 0 0 12px rgba(0,0,0,0.7);
+    pointer-events: none;
+    z-index: 9998;
+    background: #111;
+}
+
+#minimap-container::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border: 3px solid var(--ui-green);
+    border-radius: 50%;
+    pointer-events: none;
+}
