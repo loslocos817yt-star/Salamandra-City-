@@ -178,6 +178,15 @@
             <div class="settings-title">CONFIGURACIÓN</div>
             
             <div class="setting-row">
+                <span style="letter-spacing: 1px;">VISITAS TOTALES</span>
+                <div style="display: flex; align-items: center; background: #000; padding: 4px 8px; border: 1px solid var(--accent); box-shadow: 0 0 10px rgba(255, 204, 0, 0.2);">
+                    <img src="https://hitwebcounter.com/counter/counter.php?page=21484093&style=0040&nbdigits=5&type=page&initCount=0" 
+                         title="Visitas" alt="Visitas" border="0" 
+                         style="height: 22px; filter: brightness(1.2) drop-shadow(0 0 3px #00ff00);">
+                </div>
+            </div>
+
+            <div class="setting-row">
                 <span>1ª PERSONA (FPS)</span>
                 <label class="switch">
                     <input type="checkbox" id="check-fps">
@@ -228,7 +237,6 @@
 
         // Cargar preferencias guardadas al iniciar
         checkFPS.checked = localStorage.getItem('fps_mode') === 'true';
-        // Si no hay configuración de música, por defecto que esté encendida (true)
         checkMusic.checked = localStorage.getItem('music_on') !== 'false'; 
         checkHorizontal.checked = localStorage.getItem('horizontal_mode') === 'true';
 
@@ -255,7 +263,6 @@
         document.getElementById('btn-save-settings').onclick = () => {
             playBeep(800, 0.1, 0.05);
             
-            // Guardar en el localStorage
             localStorage.setItem('fps_mode', checkFPS.checked);
             localStorage.setItem('music_on', checkMusic.checked);
             localStorage.setItem('horizontal_mode', checkHorizontal.checked);
@@ -286,3 +293,4 @@
     </script>
 </body>
 </html>
+
