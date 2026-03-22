@@ -6,10 +6,20 @@
     <title>Salamandra City - Menu Pro</title>
     <link href="https://fonts.cdnfonts.com/css/pricedown" rel="stylesheet">
     <link rel="icon" type="image/png" href="recursos/web/logo.png">
-    
+
     <style>
-        :root { --accent: #ffcc00; --bg: #050505; --panel: rgba(10, 10, 10, 0.95); }
-        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+        :root {
+            --accent: #ffcc00;
+            --bg: #050505;
+            --panel: rgba(10, 10, 10, 0.95);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            outline: none;
+        }
 
         body {
             background-color: var(--bg);
@@ -22,15 +32,26 @@
             color: white;
         }
 
-        /* FONDO DINÁMICO */
-        #canvas-bg { position: absolute; top: 0; left: 0; z-index: 1; filter: blur(3px); opacity: 0.4; }
-        .overlay { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.8) 100%);
-            z-index: 2; pointer-events: none;
+        #canvas-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            filter: blur(3px);
+            opacity: 0.4;
         }
 
-        /* CONTENEDOR UI */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 20%, rgba(0, 0, 0, 0.8) 100%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
         #ui-layer {
             position: relative;
             z-index: 10;
@@ -51,8 +72,12 @@
             filter: drop-shadow(0 0 20px rgba(255, 204, 0, 0.3));
         }
 
-        /* BOTONES */
-        .menu-nav { display: flex; flex-direction: column; gap: 15px; width: 300px; }
+        .menu-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 300px;
+        }
 
         .btn-gta {
             background: rgba(255, 255, 255, 0.05);
@@ -77,15 +102,19 @@
             box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
         }
 
-        .btn-gta.play { border-left: 10px solid var(--accent); }
+        .btn-gta.play {
+            border-left: 10px solid var(--accent);
+        }
 
-        /* VENTANA DE AJUSTES (MODAL) */
         #settings-modal {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
             z-index: 100;
-            display: none; 
+            display: none;
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(10px);
@@ -102,10 +131,10 @@
             transform: skewX(-2deg);
         }
 
-        .settings-title { 
-            font-size: 35px; 
-            color: var(--accent); 
-            margin-bottom: 25px; 
+        .settings-title {
+            font-size: 35px;
+            color: var(--accent);
+            margin-bottom: 25px;
             border-bottom: 2px solid var(--accent);
             text-align: left;
         }
@@ -118,19 +147,50 @@
             font-size: 22px;
         }
 
-        /* SWITCH PARA AJUSTES */
-        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
         .slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #222; transition: .4s; border: 1px solid #444;
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #222;
+            transition: 0.4s;
+            border: 1px solid #444;
         }
+
         .slider:before {
-            position: absolute; content: ""; height: 18px; width: 18px;
-            left: 4px; bottom: 3px; background-color: white; transition: .4s;
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
         }
-        input:checked + .slider { background-color: var(--accent); }
-        input:checked + .slider:before { transform: translateX(24px); background-color: black; }
+
+        input:checked + .slider {
+            background-color: var(--accent);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+            background-color: black;
+        }
 
         .btn-save {
             margin-top: 15px;
@@ -145,20 +205,35 @@
             transition: 0.2s;
         }
 
-        .btn-save:hover { background: white; transform: scale(1.02); }
+        .btn-save:hover {
+            background: white;
+            transform: scale(1.02);
+        }
 
-        /* ANIMACIONES Y EFECTOS */
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
         .scanlines {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
             background-size: 100% 3px, 3px 100%;
-            pointer-events: none; z-index: 5;
+            pointer-events: none;
+            z-index: 5;
         }
     </style>
 </head>
 <body>
-
     <canvas id="canvas-bg"></canvas>
     <div class="overlay"></div>
     <div class="scanlines"></div>
@@ -178,13 +253,11 @@
     <div id="settings-modal">
         <div class="settings-panel">
             <div class="settings-title">CONFIGURACIÓN</div>
-            
+
             <div class="setting-row">
                 <span style="letter-spacing: 1px;">VISITAS TOTALES</span>
                 <div style="display: flex; align-items: center; background: #000; padding: 4px 8px; border: 1px solid var(--accent); box-shadow: 0 0 10px rgba(255, 204, 0, 0.2);">
-                    <img src="https://hitwebcounter.com/counter/counter.php?page=21484093&style=0040&nbdigits=5&type=page&initCount=0" 
-                         title="Visitas" alt="Visitas" border="0" 
-                         style="height: 22px; filter: brightness(1.2) drop-shadow(0 0 3px #00ff00);">
+                    <img src="https://hitwebcounter.com/counter/counter.php?page=21484093&style=0040&nbdigits=5&type=page&initCount=0" title="Visitas" alt="Visitas" border="0" style="height: 22px; filter: brightness(1.2) drop-shadow(0 0 3px #00ff00);">
                 </div>
             </div>
 
@@ -217,35 +290,37 @@
     </div>
 
     <script>
-        // --- SONIDO (Efectos de la UI) ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
         function playBeep(freq, dur, vol) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
+
             osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
             gain.gain.setValueAtTime(vol, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + dur);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + dur);
         }
 
-        // --- LÓGICA DE INTERFAZ ---
         const modal = document.getElementById('settings-modal');
         const checkFPS = document.getElementById('check-fps');
         const checkMusic = document.getElementById('check-music');
         const checkHorizontal = document.getElementById('check-horizontal');
 
-        // Cargar preferencias guardadas al iniciar
         checkFPS.checked = localStorage.getItem('fps_mode') === 'true';
-        checkMusic.checked = localStorage.getItem('music_on') !== 'false'; 
+        checkMusic.checked = localStorage.getItem('music_on') !== 'false';
         checkHorizontal.checked = localStorage.getItem('horizontal_mode') === 'true';
 
         document.querySelectorAll('.btn-gta').forEach(btn => {
             btn.onmouseenter = () => playBeep(900, 0.05, 0.02);
-            
-            btn.onclick = (e) => {
+
+            btn.onclick = e => {
                 if (btn.id === 'btn-settings') {
                     e.preventDefault();
                     playBeep(1100, 0.1, 0.05);
@@ -254,6 +329,7 @@
                 }
 
                 playBeep(1200, 0.15, 0.1);
+
                 if (btn.id === 'btn-play') {
                     e.preventDefault();
                     setTimeout(() => window.location.href = btn.href, 200);
@@ -261,38 +337,53 @@
             };
         });
 
-        // Guardar preferencias al darle "Aceptar"
         document.getElementById('btn-save-settings').onclick = () => {
             playBeep(800, 0.1, 0.05);
-            
+
             localStorage.setItem('fps_mode', checkFPS.checked);
             localStorage.setItem('music_on', checkMusic.checked);
             localStorage.setItem('horizontal_mode', checkHorizontal.checked);
-            
+
             modal.style.display = 'none';
         };
 
-        // --- FONDO DE PARTÍCULAS ---
         const canvas = document.getElementById('canvas-bg');
         const ctx = canvas.getContext('2d');
         let dots = [];
+
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        for(let i=0; i<40; i++) dots.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*2, vx: Math.random()-0.5, vy: Math.random()-0.5});
+
+        for (let i = 0; i < 40; i++) {
+            dots.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                s: Math.random() * 2,
+                vx: Math.random() - 0.5,
+                vy: Math.random() - 0.5
+            });
+        }
 
         function render() {
-            ctx.clearRect(0,0,canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = "#ffcc00";
+
             dots.forEach(d => {
-                ctx.beginPath(); ctx.arc(d.x, d.y, d.s, 0, 7); ctx.fill();
-                d.x += d.vx; d.y += d.vy;
-                if(d.x<0 || d.x>canvas.width) d.vx*=-1;
-                if(d.y<0 || d.y>canvas.height) d.vy*=-1;
+                ctx.beginPath();
+                ctx.arc(d.x, d.y, d.s, 0, 7);
+                ctx.fill();
+
+                d.x += d.vx;
+                d.y += d.vy;
+
+                if (d.x < 0 || d.x > canvas.width) d.vx *= -1;
+                if (d.y < 0 || d.y > canvas.height) d.vy *= -1;
             });
+
             requestAnimationFrame(render);
         }
+
         render();
     </script>
 </body>
 </html>
-
