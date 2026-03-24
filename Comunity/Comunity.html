@@ -1,1 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Salamandra City - Comunidad</title>
+    <link href="https://fonts.cdnfonts.com/css/pricedown" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #ffcc00;
+            --bg: #050505;
+            --panel: rgba(20, 20, 20, 0.9);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Estilo Título GTA */
+        .header {
+            padding: 40px 20px;
+            text-align: center;
+            background: linear-gradient(to bottom, #111, transparent);
+        }
+
+        h1 {
+            font-family: 'Pricedown', sans-serif;
+            font-size: 60px;
+            color: var(--accent);
+            text-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
+            margin: 0;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--accent);
+            color: black;
+            padding: 10px 20px;
+            font-family: 'Pricedown', sans-serif;
+            text-decoration: none;
+            font-size: 20px;
+            z-index: 100;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+        }
+
+        /* Contenedor de Posts */
+        #news-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .post-card {
+            background: var(--panel);
+            border-left: 5px solid var(--accent);
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            transition: 0.3s;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .post-card:hover {
+            transform: translateX(10px);
+            background: rgba(40, 40, 40, 0.9);
+        }
+
+        .post-date {
+            color: var(--accent);
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .post-title {
+            font-family: 'Pricedown', sans-serif;
+            font-size: 30px;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .post-content {
+            line-height: 1.6;
+            color: #ccc;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading {
+            text-align: center;
+            font-family: 'Pricedown', sans-serif;
+            font-size: 30px;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="../index.html" class="back-btn">VOLVER</a>
+
+    <div class="header">
+        <h1>NOTICIAS Y ACTUALIZACIONES</h1>
+    </div>
+
+    <div id="news-container">
+        <div class="loading">CARGANDO BASE DE DATOS...</div>
+    </div>
+
+    <script>
+        async function loadCommunity() {
+            const container = document.getElementById('news-container');
+            
+            try {
+                // Aquí lee tu JSON
+                const response = await fetch('json/Comunity.json');
+                const data = await response.json();
+                
+                container.innerHTML = ''; // Limpiar el cargando
+
+                data.posts.forEach(post => {
+                    const card = document.createElement('div');
+                    card.className = 'post-card';
+                    
+                    card.innerHTML = `
+                        <div class="post-date">${post.fecha}</div>
+                        <div class="post-title">${post.titulo}</div>
+                        <div class="post-content">${post.contenido}</div>
+                    `;
+                    
+                    container.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error("Error cargando el JSON:", error);
+                container.innerHTML = '<div class="loading" style="color: red;">ERROR AL CONECTAR CON EL SERVIDOR</div>';
+            }
+        }
+
+        // Ejecutar al cargar la página
+        window.onload = loadCommunity;
+    </script>
+</body>
+</html>
 
