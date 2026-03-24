@@ -2,13 +2,8 @@
   "posts": [
     {
       "fecha": "23 MARZO 2026",
-      "titulo": "NUEVO SISTEMA DE COLISIONES",
-      "contenido": "Hemos optimizado el radio de detección de las ranas y ratones para que no se queden atrapados en los muros de Salamandra City."
-    },
-    {
-      "fecha": "20 MARZO 2026",
-      "titulo": "CLIMA DINAMICO",
-      "contenido": "Se ha añadido niebla volumétrica y transiciones suaves entre el atardecer y la noche."
+      "titulo": "CAMBIO DE LENGUAJE",
+      "contenido": "Por los problemas que nos ah estado dando el sistema de npc's y modelos, nos pasaremos a Godot, pero sera hasta en 1.5 años aproximadamente, adios."
     }
   ]
 }
