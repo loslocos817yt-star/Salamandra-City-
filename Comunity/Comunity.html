@@ -9,124 +9,230 @@
         :root {
             --accent: #ffcc00;
             --bg: #050505;
-            --panel: rgba(20, 20, 20, 0.9);
+            --panel: rgba(10, 10, 10, 0.85);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            outline: none;
         }
 
         body {
             background-color: var(--bg);
             color: white;
             font-family: 'Arial', sans-serif;
-            margin: 0;
             overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        /* Estilo Título GTA */
-        .header {
-            padding: 40px 20px;
-            text-align: center;
-            background: linear-gradient(to bottom, #111, transparent);
+        /* --- FONDO ANIMADO ESTILO SALAMANDRA CITY --- */
+        #canvas-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            filter: blur(3px);
+            opacity: 0.4;
         }
 
-        h1 {
-            font-family: 'Pricedown', sans-serif;
-            font-size: 60px;
-            color: var(--accent);
-            text-shadow: 0 0 15px rgba(255, 204, 0, 0.5);
-            margin: 0;
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none;
+            z-index: 5;
         }
 
+        /* --- BOTÓN DE VOLVER ESTILO GTA --- */
         .back-btn {
             position: fixed;
             top: 20px;
             left: 20px;
-            background: var(--accent);
-            color: black;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
             padding: 10px 20px;
             font-family: 'Pricedown', sans-serif;
+            font-size: 22px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-left: 8px solid var(--accent);
             text-decoration: none;
-            font-size: 20px;
+            transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
             z-index: 100;
-            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+            letter-spacing: 2px;
+            cursor: pointer;
         }
 
-        /* Contenedor de Posts */
-        #news-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
+        .back-btn:hover {
+            background: #fff;
+            color: #000;
+            transform: scale(1.05) skewX(-5deg);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+        }
+
+        /* --- CONTENEDOR PRINCIPAL --- */
+        .content-layer {
+            position: relative;
+            z-index: 10;
+            width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 25px;
+            align-items: center;
+            padding-top: 80px; /* Espacio para el botón de volver */
+        }
+
+        .header {
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-family: 'Pricedown', sans-serif;
+            font-size: 55px;
+            color: var(--accent);
+            text-shadow: 0 0 20px rgba(255, 204, 0, 0.4);
+            letter-spacing: 3px;
+            text-align: center;
+        }
+
+        /* --- ESTILO DE LAS TARJETAS (TEXTO CENTRADO) --- */
+        #news-container {
+            width: 90%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            padding-bottom: 50px;
         }
 
         .post-card {
             background: var(--panel);
-            border-left: 5px solid var(--accent);
-            padding: 20px;
+            border: 2px solid rgba(255, 204, 0, 0.1);
+            border-top: 6px solid var(--accent);
+            padding: 30px 20px;
             backdrop-filter: blur(10px);
             transition: 0.3s;
             animation: fadeIn 0.5s ease forwards;
+            text-align: center; /* ESTO CENTRA TODO EL CONTENIDO */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            transform: skewX(-1deg);
         }
 
         .post-card:hover {
-            transform: translateX(10px);
-            background: rgba(40, 40, 40, 0.9);
+            transform: skewX(-1deg) translateY(-5px);
+            border-color: rgba(255, 204, 0, 0.4);
+            box-shadow: 0 0 25px rgba(255, 204, 0, 0.15);
         }
 
         .post-date {
-            color: var(--accent);
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 10px;
+            color: #aaa;
+            font-size: 16px;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            font-family: 'Pricedown', sans-serif;
         }
 
         .post-title {
             font-family: 'Pricedown', sans-serif;
-            font-size: 30px;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
+            font-size: 38px;
+            color: white;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0px #000;
         }
 
         .post-content {
             line-height: 1.6;
-            color: #ccc;
+            color: #ddd;
+            font-size: 17px;
+            margin: 0 auto;
+            max-width: 95%;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(30px) skewX(-1deg); }
+            to { opacity: 1; transform: translateY(0) skewX(-1deg); }
         }
 
         .loading {
             text-align: center;
             font-family: 'Pricedown', sans-serif;
             font-size: 30px;
-            margin-top: 50px;
+            color: var(--accent);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
     </style>
 </head>
 <body>
 
-    <a href="../index.html" class="back-btn">VOLVER</a>
+    <canvas id="canvas-bg"></canvas>
+    <div class="scanlines"></div>
 
-    <div class="header">
-        <h1>NOTICIAS Y ACTUALIZACIONES</h1>
-    </div>
+    <a href="../index.html" class="back-btn" id="btn-back">VOLVER</a>
 
-    <div id="news-container">
-        <div class="loading">CARGANDO BASE DE DATOS...</div>
+    <div class="content-layer">
+        <div class="header">
+            <h1>ACTUALIZACIONES</h1>
+        </div>
+
+        <div id="news-container">
+            <div class="loading">Sincronizando red...</div>
+        </div>
     </div>
 
     <script>
+        // --- SISTEMA DE AUDIO PARA EL BOTÓN VOLVER ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playBeep(freq, dur, vol) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + dur);
+        }
+
+        const btnBack = document.getElementById('btn-back');
+        btnBack.onmouseenter = () => playBeep(900, 0.05, 0.02);
+        btnBack.onclick = (e) => {
+            e.preventDefault();
+            playBeep(1200, 0.15, 0.1);
+            setTimeout(() => window.location.href = btnBack.href, 200);
+        };
+
+        // --- CARGA DEL JSON ---
         async function loadCommunity() {
             const container = document.getElementById('news-container');
             
             try {
-                // Aquí lee tu JSON
                 const response = await fetch('json/Comunity.json');
                 const data = await response.json();
                 
-                container.innerHTML = ''; // Limpiar el cargando
+                container.innerHTML = ''; 
 
                 data.posts.forEach(post => {
                     const card = document.createElement('div');
@@ -147,9 +253,48 @@
             }
         }
 
-        // Ejecutar al cargar la página
         window.onload = loadCommunity;
+
+        // --- ANIMACIÓN DE FONDO (IGUAL AL MENÚ) ---
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        let dots = [];
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        for (let i = 0; i < 40; i++) {
+            dots.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                s: Math.random() * 2,
+                vx: Math.random() - 0.5,
+                vy: Math.random() - 0.5
+            });
+        }
+
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#ffcc00";
+
+            dots.forEach(d => {
+                ctx.beginPath();
+                ctx.arc(d.x, d.y, d.s, 0, 7);
+                ctx.fill();
+
+                d.x += d.vx;
+                d.y += d.vy;
+
+                if (d.x < 0 || d.x > canvas.width) d.vx *= -1;
+                if (d.y < 0 || d.y > canvas.height) d.vy *= -1;
+            });
+
+            requestAnimationFrame(render);
+        }
+
+        render();
     </script>
 </body>
 </html>
+
 
