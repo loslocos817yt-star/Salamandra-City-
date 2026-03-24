@@ -245,7 +245,7 @@
 
         <nav class="menu-nav">
             <a href="game.html" class="btn-gta play" id="btn-play">INICIAR JUEGO</a>
-            <a href="#" class="btn-gta" onclick="alert('Cargando mapa...')">VECINDARIO</a>
+            <a href="Comunity/Comunity.html" class="btn-gta" id="btn-community">COMUNIDAD</a>
             <a href="#" class="btn-gta" id="btn-settings">AJUSTES</a>
         </nav>
     </div>
@@ -330,7 +330,8 @@
 
                 playBeep(1200, 0.15, 0.1);
 
-                if (btn.id === 'btn-play') {
+                // Aquí incluí btn-community para que espere el sonido igual que btn-play
+                if (btn.id === 'btn-play' || btn.id === 'btn-community') {
                     e.preventDefault();
                     setTimeout(() => window.location.href = btn.href, 200);
                 }
