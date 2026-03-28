@@ -12,50 +12,84 @@
     
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/gui.css">
+    <style>
+        /* Estilos para el botón de tres puntos y el menú de pausa */
+        #btn-pause-dots {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid white;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            z-index: 1000;
+            cursor: pointer;
+        }
+        .dot { width: 6px; height: 6px; background: white; border-radius: 50%; }
+
+        #menu-pausa {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none; /* Oculto por defecto */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .pausa-titulo {
+            font-family: 'Arial Black', sans-serif;
+            color: #ffcc00;
+            font-size: 40px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px #000;
+        }
+
+        .btn-pausa {
+            width: 250px;
+            padding: 15px;
+            margin: 10px;
+            background: white;
+            color: black;
+            border: none;
+            font-family: sans-serif;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+
+        .btn-pausa:hover { background: #ffcc00; transform: scale(1.05); }
+        .btn-pausa.rojo { background: #ff4444; color: white; }
+    </style>
 </head>
 <body>
 
     <audio id="musica-fondo" src="./recursos/ogg/music_game.ogg" preload="auto" loop autoplay></audio>
-    <script>
-        // LEER LOS AJUSTES DEL MENÚ
-        const musicaEncendida = localStorage.getItem('music_on') !== 'false'; 
-        const modoHorizontal = localStorage.getItem('horizontal_mode') === 'true'; 
-        
-        const musicaGame = document.getElementById('musica-fondo');
-        musicaGame.volume = 0.3;
+    
+    <div id="btn-pause-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
 
-        if (!musicaEncendida) {
-            musicaGame.muted = true;
-        }
-
-        const arrancarInteraccion = async () => {
-            if (musicaEncendida && musicaGame.paused) {
-                musicaGame.play().catch(e => console.log("Autoplay bloqueado, esperando interacción..."));
-            }
-
-            if (modoHorizontal) {
-                try {
-                    if (document.documentElement.requestFullscreen) {
-                        await document.documentElement.requestFullscreen();
-                    }
-                    if (screen.orientation && screen.orientation.lock) {
-                        await screen.orientation.lock('landscape');
-                    }
-                } catch (error) {
-                    console.log("El navegador no permite forzar el modo horizontal automáticamente:", error);
-                }
-            }
-
-            ['touchstart', 'mousedown', 'pointerdown', 'click', 'keydown'].forEach(evt => {
-                document.removeEventListener(evt, arrancarInteraccion);
-            });
-        };
-
-        arrancarInteraccion();
-        ['touchstart', 'mousedown', 'pointerdown', 'click', 'keydown'].forEach(evt => {
-            document.addEventListener(evt, arrancarInteraccion, { once: true });
-        });
-    </script>
+    <div id="menu-pausa">
+        <div class="pausa-titulo">PAUSA</div>
+        <button class="btn-pausa" id="resume-game">REANUDAR</button>
+        <button class="btn-pausa rojo" id="go-to-menu">IR AL MENÚ</button>
+    </div>
 
     <div class="hud-wrapper">
         <div class="salamandra-avatar animada"></div>
@@ -96,7 +130,32 @@
         import { generarMapa } from './js/functions/mundo.js';
         import { CicloDiaNoche } from './js/functions/clima.js';
 
-        // Escena, Cámara y Renderer
+        // LÓGICA DE PAUSA
+        let gamePaused = false;
+        let animationId;
+        const menuPausa = document.getElementById('menu-pausa');
+        const musicaGame = document.getElementById('musica-fondo');
+
+        const pausarJuego = () => {
+            gamePaused = true;
+            menuPausa.style.display = 'flex';
+            musicaGame.pause();
+            cancelAnimationFrame(animationId);
+        };
+
+        const reanudarJuego = () => {
+            gamePaused = false;
+            menuPausa.style.display = 'none';
+            if (localStorage.getItem('music_on') !== 'false') musicaGame.play();
+            lastTime = performance.now();
+            animate();
+        };
+
+        document.getElementById('btn-pause-dots').onclick = pausarJuego;
+        document.getElementById('resume-game').onclick = reanudarJuego;
+        document.getElementById('go-to-menu').onclick = () => window.location.href = 'index.html';
+
+        // Configuración inicial Three.js
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1500);
         const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
@@ -104,43 +163,28 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         document.body.appendChild(renderer.domElement);
 
-        // Iluminación y ambiente
         const colorCieloInicial = 0x88ccff;
         scene.background = new THREE.Color(colorCieloInicial);
         scene.fog = new THREE.FogExp2(colorCieloInicial, 0.001);
-        
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-        scene.add(ambientLight);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.8));
         
         const sol = new THREE.DirectionalLight(0xfff0d0, 1.3);
         sol.position.set(20, 40, 10);
         scene.add(sol);
 
-        // Suelo
-        const pasto = new THREE.Mesh(
-            new THREE.PlaneGeometry(3000, 3000), 
-            new THREE.MeshStandardMaterial({ color: 0x44aa44 })
-        );
+        const pasto = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000), new THREE.MeshStandardMaterial({ color: 0x44aa44 }));
         pasto.rotation.x = -Math.PI / 2;
         scene.add(pasto);
 
-        // Jugador
         const jugador = crearSalamandra();
         scene.add(jugador);
 
-        // Elementos del mundo
         const casas = [], edificios = [], balas = [], lootsEnMapa = [];
         const sistemaNPC = generarMapa(scene, casas, edificios, lootsEnMapa);
 
-        // Sistema de clima
         let clima = null;
-        try {
-            clima = new CicloDiaNoche(scene, sol, ambientLight, scene.fog);
-        } catch(e) {
-            console.warn('⚠️ Sistema de clima no cargado:', e.message);
-        }
+        try { clima = new CicloDiaNoche(scene, sol, new THREE.AmbientLight(0xffffff, 0.8), scene.fog); } catch(e) {}
 
-        // Audio de pasos
         const sonidoCaminar = new Audio('./recursos/ogg/caminar.ogg');
         sonidoCaminar.loop = true;
         sonidoCaminar.volume = 0.25;
@@ -154,72 +198,36 @@
             color: 'yellow',
             size: 100
         });
-        
-        joy.on('move', (e, d) => {
-            mov = { x: -d.vector.x, y: -d.vector.y };
-        });
+        joy.on('move', (e, d) => { mov = { x: -d.vector.x, y: -d.vector.y }; });
         joy.on('end', () => mov = { x: 0, y: 0 });
 
-        // Cámara - control de visión para la primera persona
+        // Cámara FPS
         let lon = 0, lat = 0, touchX = 0, touchY = 0, isTouching = false;
 
         document.addEventListener('touchstart', (e) => {
+            if (gamePaused) return;
             if (e.touches[0].clientX > window.innerWidth / 2) {
                 isTouching = true;
                 touchX = e.touches[0].clientX;
                 touchY = e.touches[0].clientY;
-                e.preventDefault();
             }
         }, { passive: false });
 
         document.addEventListener('touchmove', (e) => {
-            if (!isTouching) return;
+            if (!isTouching || gamePaused) return;
             const dx = e.touches[0].clientX - touchX;
             const dy = e.touches[0].clientY - touchY;
-            lon -= dx * 0.3; 
-            lat -= dy * 0.3; 
+            lon -= dx * 0.3; lat -= dy * 0.3; 
             lat = Math.max(-85, Math.min(85, lat)); 
-            touchX = e.touches[0].clientX;
-            touchY = e.touches[0].clientY;
-            e.preventDefault();
+            touchX = e.touches[0].clientX; touchY = e.touches[0].clientY;
         }, { passive: false });
 
         document.addEventListener('touchend', () => isTouching = false);
-        
-        // Mouse para desktop
-        let isMouseDown = false;
-        document.addEventListener('mousedown', (e) => {
-            if (e.button === 2 && e.clientX > window.innerWidth / 2) {
-                isMouseDown = true;
-                touchX = e.clientX;
-                touchY = e.clientY;
-                e.preventDefault();
-            }
-        });
-        document.addEventListener('mousemove', (e) => {
-            if (!isMouseDown) return;
-            const dx = e.clientX - touchX;
-            const dy = e.clientY - touchY;
-            lon -= dx * 0.3; 
-            lat -= dy * 0.3; 
-            lat = Math.max(-85, Math.min(85, lat)); 
-            touchX = e.clientX;
-            touchY = e.clientY;
-            e.preventDefault();
-        });
-        document.addEventListener('mouseup', () => isMouseDown = false);
-        document.addEventListener('contextmenu', (e) => e.preventDefault());
 
-        // Salto
+        // Salto y Armas
         const sDat = { enAire: false, velocidadY: 0, gravedad: 0.0015, fuerzaImpulso: 0.06 };
-        document.getElementById('btn-saltar').onclick = () => { 
-            if(!sDat.enAire) { 
-                sDat.enAire = true; 
-                sDat.velocidadY = sDat.fuerzaImpulso; 
-            } 
-        };
+        document.getElementById('btn-saltar').onclick = () => { if(!sDat.enAire && !gamePaused) { sDat.enAire = true; sDat.velocidadY = sDat.fuerzaImpulso; } };
 
-        // Armas
         let tieneArma = false, modoCombate = false;
         const miArma = crearArma(); 
         miArma.visible = false; 
@@ -229,130 +237,39 @@
         const btnFuego = document.getElementById('btn-fuego');
 
         btnArma.onclick = () => {
+            if(gamePaused) return;
             modoCombate = !modoCombate;
             btnFuego.style.display = modoCombate ? 'flex' : 'none';
             btnArma.innerText = modoCombate ? "SALIR" : "UZI";
-            btnArma.style.borderColor = modoCombate ? "#ff4444" : "cyan";
-            btnArma.style.color = modoCombate ? "#ff4444" : "cyan";
         };
 
-        // Audio disparo
-        const audioListener = new THREE.AudioListener(); 
-        camera.add(audioListener);
-        const sDisparo = new THREE.Audio(audioListener);
-        new THREE.AudioLoader().load(
-            'https://actions.google.com/sounds/v1/weapons/automatic_gun_fire.ogg', 
-            (buffer) => { 
-                sDisparo.setBuffer(buffer); 
-                sDisparo.setVolume(0.15); 
-            }
-        );
-
-        // Disparar
-        btnFuego.addEventListener('touchstart', disparar, { passive: false });
-        btnFuego.onmousedown = disparar;
-
-        function disparar(e) {
-            if(e) e.preventDefault();
-            if (!modoCombate || !tieneArma) return;
-            
-            if (sDisparo.isPlaying) sDisparo.stop(); 
-            sDisparo.play();
-            
-            const b = new THREE.Mesh(
-                new THREE.SphereGeometry(0.02, 8, 8), 
-                new THREE.MeshBasicMaterial({ color: 0xffcc00 })
-            );
-            
-            const p = new THREE.Vector3(); 
-            miArma.getWorldPosition(p);
-            b.position.copy(p);
-            
-            const d = new THREE.Vector3(); 
-            camera.getWorldDirection(d);
-            b.userData.vel = d.multiplyScalar(0.7);
-            balas.push(b); 
-            scene.add(b);
-            
-            // Retroceso visual del arma
-            if(miArma.visible) {
-                miArma.position.z += 0.02;
-                setTimeout(() => { if(miArma.visible) miArma.position.z -= 0.02; }, 50);
-            }
-        }
-
-        // Bucle principal
+        // Bucle Animación
         let lastTime = performance.now();
-        
         function animate() {
-            requestAnimationFrame(animate);
-            
+            animationId = requestAnimationFrame(animate);
             const now = performance.now();
             const deltaTime = now - lastTime;
             lastTime = now;
-            
+
             const andando = Math.abs(mov.x) > 0.1 || Math.abs(mov.y) > 0.1;
 
-            // Audio pasos
             if (andando && !sDat.enAire) { 
                 if (sonidoCaminar.paused) sonidoCaminar.play().catch(()=>{});
             } else {
-                if (!sonidoCaminar.paused) {
-                    sonidoCaminar.pause();
-                    sonidoCaminar.currentTime = 0;
-                }
+                sonidoCaminar.pause();
             }
 
-            // Actualizar clima
-            if (clima) {
-                clima.actualizar(deltaTime);
-            }
+            if (clima) clima.actualizar(deltaTime);
 
-            // Recoger loot
-            if (!tieneArma) {
-                for (let i = lootsEnMapa.length - 1; i >= 0; i--) {
-                    lootsEnMapa[i].rotation.y += 0.02;
-                    if (jugador.position.distanceTo(lootsEnMapa[i].position) < 0.7) {
-                        tieneArma = true; 
-                        scene.remove(lootsEnMapa[i]); 
-                        lootsEnMapa.splice(i, 1); 
-                        btnArma.style.display = 'flex';
-                    }
-                }
-            }
-
-            // --- LÓGICA EXCLUSIVA DE PRIMERA PERSONA (FPS) ---
-
-            // 1. El jugador siempre rota con la cámara
+            // FPS LOGIC
             jugador.rotation.y = THREE.MathUtils.degToRad(lon);
-
-            // 2. Movimiento relativo a la mirada
             if (andando) {
-                let nx = jugador.position.x, nz = jugador.position.z;
                 const vf = modoCombate ? 0.06 : 0.055;
-                
                 const dF = new THREE.Vector3(mov.x, 0, -mov.y).applyQuaternion(jugador.quaternion);
-                nx += dF.x * vf; 
-                nz += dF.z * vf;
-
-                // Colisiones
-                let hit = false;
-                for (const c of [...casas, ...edificios]) {
-                    const dx = nx - c.mesh.position.x;
-                    const dz = nz - c.mesh.position.z;
-                    if (Math.sqrt(dx*dx + dz*dz) < (0.2 + c.radio)) { 
-                        hit = true; 
-                        break; 
-                    }
-                }
-                
-                if (!hit) { 
-                    jugador.position.x = nx; 
-                    jugador.position.z = nz; 
-                }
+                jugador.position.x += dF.x * vf; 
+                jugador.position.z += dF.z * vf;
             }
 
-            // 3. Posicionar la cámara en la cabeza del jugador
             camera.position.set(jugador.position.x, jugador.position.y + 0.14, jugador.position.z);
             const phi = THREE.MathUtils.degToRad(90 - lat);
             const theta = THREE.MathUtils.degToRad(lon);
@@ -360,53 +277,19 @@
             target.setFromSphericalCoords(1, phi, theta).add(camera.position);
             camera.lookAt(target);
 
-            // 4. Gestionar el arma en la vista FPS
             if (tieneArma) {
                 miArma.visible = true;
-                if (modoCombate) {
-                    // Posición de apuntado
-                    miArma.position.set(0.08, 0.05, -0.15);
-                } else {
-                    // Posición relajada
-                    miArma.position.set(0.12, 0.02, -0.10); 
-                }
-                miArma.rotation.set(0, Math.PI, 0); 
-            } else {
-                miArma.visible = false;
+                miArma.position.set(modoCombate ? 0.08 : 0.12, modoCombate ? 0.05 : 0.02, -0.1);
+                miArma.rotation.set(0, Math.PI, 0);
             }
 
-            // Sistemas externos
             if (sistemaNPC) sistemaNPC.actualizar();
             gestionarSalto(jugador, sDat);
             actualizarAnimacion(jugador, andando);
-            
-            // Balas
-            for (let i = balas.length - 1; i >= 0; i--) {
-                balas[i].position.add(balas[i].userData.vel);
-                if (balas[i].position.length() > 100) {
-                    scene.remove(balas[i]);
-                    balas.splice(i, 1);
-                }
-            }
-            
             renderer.render(scene, camera);
         }
 
-        // Resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        // Start
         animate();
-    </script>
-
-    <script>
-      document.addEventListener( 'pointerdown', (e) => {
-        document.documentElement.requestFullscreen?.();
-      }, { once: true } );
     </script>
 </body>
     </html>
