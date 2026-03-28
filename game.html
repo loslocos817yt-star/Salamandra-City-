@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#000000">
-    <title>Salamandra Theft Auto </title>
+    <title>Salamandra Theft Auto</title>
     <link rel="icon" type="image/png" href="recursos/web/logo.png">
     
     <link rel="stylesheet" href="css/style.css">
@@ -18,24 +18,21 @@
     <audio id="musica-fondo" src="./recursos/ogg/music_game.ogg" preload="auto" loop autoplay></audio>
     <script>
         // LEER LOS AJUSTES DEL MENÚ
-        const musicaEncendida = localStorage.getItem('music_on') !== 'false'; // Por defecto true
-        const modoHorizontal = localStorage.getItem('horizontal_mode') === 'true'; // Por defecto false
+        const musicaEncendida = localStorage.getItem('music_on') !== 'false'; 
+        const modoHorizontal = localStorage.getItem('horizontal_mode') === 'true'; 
         
         const musicaGame = document.getElementById('musica-fondo');
         musicaGame.volume = 0.3;
 
-        // Si la apagaron en el menú, la muteamos de una vez
         if (!musicaEncendida) {
             musicaGame.muted = true;
         }
 
         const arrancarInteraccion = async () => {
-            // 1. Iniciar la música si está encendida
             if (musicaEncendida && musicaGame.paused) {
                 musicaGame.play().catch(e => console.log("Autoplay bloqueado, esperando interacción..."));
             }
 
-            // 2. Forzar modo Horizontal (Pantalla Completa y Bloqueo de Rotación)
             if (modoHorizontal) {
                 try {
                     if (document.documentElement.requestFullscreen) {
@@ -49,13 +46,11 @@
                 }
             }
 
-            // Limpiar los eventos para que no se ejecute a cada rato
             ['touchstart', 'mousedown', 'pointerdown', 'click', 'keydown'].forEach(evt => {
                 document.removeEventListener(evt, arrancarInteraccion);
             });
         };
 
-        // Escuchar el primer toque del jugador en la pantalla para activar todo
         arrancarInteraccion();
         ['touchstart', 'mousedown', 'pointerdown', 'click', 'keydown'].forEach(evt => {
             document.addEventListener(evt, arrancarInteraccion, { once: true });
@@ -70,7 +65,8 @@
             <div class="corazon-ui"></div>
         </div>
     </div>
-    <div id="crosshair" aria-hidden="true">
+    
+    <div id="crosshair" aria-hidden="true" style="display: block;">
         <div class="c-line c-v"></div>
         <div class="c-line c-h"></div>
     </div>
@@ -99,12 +95,6 @@
         import { gestionarSalto } from './js/animaciones/saltar.js';
         import { generarMapa } from './js/functions/mundo.js';
         import { CicloDiaNoche } from './js/functions/clima.js';
-
-        // ========== CONFIGURACIÓN INICIAL ==========
-        const modoFPS_Config = localStorage.getItem('fps_mode') === 'true';
-        if(modoFPS_Config) {
-            document.getElementById('crosshair').style.display = 'block';
-        }
 
         // Escena, Cámara y Renderer
         const scene = new THREE.Scene();
@@ -142,7 +132,7 @@
         const casas = [], edificios = [], balas = [], lootsEnMapa = [];
         const sistemaNPC = generarMapa(scene, casas, edificios, lootsEnMapa);
 
-        // 🔥 Sistema de clima
+        // Sistema de clima
         let clima = null;
         try {
             clima = new CicloDiaNoche(scene, sol, ambientLight, scene.fog);
@@ -170,7 +160,7 @@
         });
         joy.on('end', () => mov = { x: 0, y: 0 });
 
-        // Cámara - toque derecho para mirar
+        // Cámara - control de visión para la primera persona
         let lon = 0, lat = 0, touchX = 0, touchY = 0, isTouching = false;
 
         document.addEventListener('touchstart', (e) => {
@@ -284,6 +274,7 @@
             balas.push(b); 
             scene.add(b);
             
+            // Retroceso visual del arma
             if(miArma.visible) {
                 miArma.position.z += 0.02;
                 setTimeout(() => { if(miArma.visible) miArma.position.z -= 0.02; }, 50);
@@ -312,7 +303,7 @@
                 }
             }
 
-            // 🔥 Actualizar clima
+            // Actualizar clima
             if (clima) {
                 clima.actualizar(deltaTime);
             }
@@ -330,27 +321,19 @@
                 }
             }
 
-            // Rotación jugador FPS/Combate
-            if (modoFPS_Config || modoCombate) {
-                jugador.rotation.y = THREE.MathUtils.degToRad(lon);
-            }
+            // --- LÓGICA EXCLUSIVA DE PRIMERA PERSONA (FPS) ---
 
-            // Movimiento
+            // 1. El jugador siempre rota con la cámara
+            jugador.rotation.y = THREE.MathUtils.degToRad(lon);
+
+            // 2. Movimiento relativo a la mirada
             if (andando) {
                 let nx = jugador.position.x, nz = jugador.position.z;
                 const vf = modoCombate ? 0.06 : 0.055;
                 
-                if (modoCombate || modoFPS_Config) {
-                    const dF = new THREE.Vector3(mov.x, 0, -mov.y).applyQuaternion(jugador.quaternion);
-                    nx += dF.x * vf; 
-                    nz += dF.z * vf;
-                } else {
-                    nx += mov.x * vf; 
-                    nz -= mov.y * vf; 
-                    if(Math.abs(mov.x) > 0.2 || Math.abs(mov.y) > 0.2) {
-                        jugador.rotation.y = Math.atan2(mov.x, mov.y);
-                    }
-                }
+                const dF = new THREE.Vector3(mov.x, 0, -mov.y).applyQuaternion(jugador.quaternion);
+                nx += dF.x * vf; 
+                nz += dF.z * vf;
 
                 // Colisiones
                 let hit = false;
@@ -369,42 +352,27 @@
                 }
             }
 
-            // Cámara
-            if (modoFPS_Config) {
-                camera.position.set(jugador.position.x, jugador.position.y + 0.14, jugador.position.z);
-                const phi = THREE.MathUtils.degToRad(90 - lat);
-                const theta = THREE.MathUtils.degToRad(lon);
-                const target = new THREE.Vector3();
-                target.setFromSphericalCoords(1, phi, theta).add(camera.position);
-                camera.lookAt(target);
+            // 3. Posicionar la cámara en la cabeza del jugador
+            camera.position.set(jugador.position.x, jugador.position.y + 0.14, jugador.position.z);
+            const phi = THREE.MathUtils.degToRad(90 - lat);
+            const theta = THREE.MathUtils.degToRad(lon);
+            const target = new THREE.Vector3();
+            target.setFromSphericalCoords(1, phi, theta).add(camera.position);
+            camera.lookAt(target);
 
-                if (tieneArma && modoCombate) {
-                    miArma.visible = true;
+            // 4. Gestionar el arma en la vista FPS
+            if (tieneArma) {
+                miArma.visible = true;
+                if (modoCombate) {
+                    // Posición de apuntado
                     miArma.position.set(0.08, 0.05, -0.15);
-                    miArma.rotation.set(0, Math.PI, 0); 
-                } else if (tieneArma) {
-                    miArma.visible = false;
+                } else {
+                    // Posición relajada
+                    miArma.position.set(0.12, 0.02, -0.10); 
                 }
-            } else if (modoCombate) {
-                camera.position.set(jugador.position.x, jugador.position.y + 0.15, jugador.position.z);
-                const d = new THREE.Vector3(0, 0, -1).applyQuaternion(jugador.quaternion);
-                camera.lookAt(jugador.position.clone().add(d).add(new THREE.Vector3(0, 0.05, 0)));
-                
-                if (tieneArma) {
-                    miArma.visible = true; 
-                    miArma.position.set(0.12, 0.1, -0.1); 
-                    miArma.rotation.set(0, Math.PI, 0);
-                }
+                miArma.rotation.set(0, Math.PI, 0); 
             } else {
-                const offset = new THREE.Vector3(0, 0.4, -0.6).applyQuaternion(jugador.quaternion);
-                camera.position.lerp(jugador.position.clone().add(offset), 0.1);
-                camera.lookAt(jugador.position.x, jugador.position.y + 0.1, jugador.position.z);
-                
-                if (tieneArma) { 
-                    miArma.visible = true; 
-                    miArma.position.set(0.12, 0.05, 0); 
-                    miArma.rotation.set(0, Math.PI, 0); 
-                }
+                miArma.visible = false;
             }
 
             // Sistemas externos
@@ -441,4 +409,5 @@
       }, { once: true } );
     </script>
 </body>
-</html>
+    </html>
+    
