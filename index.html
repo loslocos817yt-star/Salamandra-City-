@@ -262,14 +262,6 @@
             </div>
 
             <div class="setting-row">
-                <span>1ª PERSONA (FPS)</span>
-                <label class="switch">
-                    <input type="checkbox" id="check-fps">
-                    <span class="slider"></span>
-                </label>
-            </div>
-
-            <div class="setting-row">
                 <span>MÚSICA</span>
                 <label class="switch">
                     <input type="checkbox" id="check-music">
@@ -309,11 +301,9 @@
         }
 
         const modal = document.getElementById('settings-modal');
-        const checkFPS = document.getElementById('check-fps');
         const checkMusic = document.getElementById('check-music');
         const checkHorizontal = document.getElementById('check-horizontal');
 
-        checkFPS.checked = localStorage.getItem('fps_mode') === 'true';
         checkMusic.checked = localStorage.getItem('music_on') !== 'false';
         checkHorizontal.checked = localStorage.getItem('horizontal_mode') === 'true';
 
@@ -330,7 +320,6 @@
 
                 playBeep(1200, 0.15, 0.1);
 
-                // Aquí incluí btn-community para que espere el sonido igual que btn-play
                 if (btn.id === 'btn-play' || btn.id === 'btn-community') {
                     e.preventDefault();
                     setTimeout(() => window.location.href = btn.href, 200);
@@ -341,7 +330,6 @@
         document.getElementById('btn-save-settings').onclick = () => {
             playBeep(800, 0.1, 0.05);
 
-            localStorage.setItem('fps_mode', checkFPS.checked);
             localStorage.setItem('music_on', checkMusic.checked);
             localStorage.setItem('horizontal_mode', checkHorizontal.checked);
 
@@ -387,4 +375,5 @@
         render();
     </script>
 </body>
-</html>
+    </html>
+    
