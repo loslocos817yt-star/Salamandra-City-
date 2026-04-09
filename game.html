@@ -88,6 +88,7 @@
     <div id="menu-pausa">
         <div class="pausa-titulo">PAUSA</div>
         <button class="btn-pausa" id="resume-game">REANUDAR</button>
+        <button class="btn-pausa" id="btn-multiplayer">MULTIJUGADOR</button>
         <button class="btn-pausa rojo" id="go-to-menu">IR AL MENÚ</button>
     </div>
 
@@ -119,10 +120,12 @@
     }
     </script>
     
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.10.1/nipplejs.min.js"></script>
 
     <script type="module">
         import * as THREE from 'three';
+import { Multiplayer } from './js/functions/multiplayer.js';
         import { crearSalamandra } from './js/modelos/salamandra.js';
         import { crearArma } from './js/modelos/arma.js'; 
         import { actualizarAnimacion } from './js/animaciones/animacion.js';
@@ -177,6 +180,8 @@
         scene.add(pasto);
 
         const jugador = crearSalamandra();
+        const mp = new Multiplayer(scene, jugador); 
+        window.mp = mp; // Para conectar desde consola con mp.conectarA('id')
         scene.add(jugador);
 
         const casas = [], edificios = [], balas = [], lootsEnMapa = [];
@@ -286,6 +291,7 @@
             if (sistemaNPC) sistemaNPC.actualizar();
             gestionarSalto(jugador, sDat);
             actualizarAnimacion(jugador, andando);
+            if(!gamePaused) mp.enviarMiPosicion();
             renderer.render(scene, camera);
         }
 
@@ -294,3 +300,51 @@
 </body>
     </html>
     
+<script>
+    // Lógica para el botón de Multiplayer
+    document.getElementById('btn-multiplayer').onclick = () => {
+        const accion = confirm("¿Quieres unirte a una sala? (Aceptar = Unirse / Cancelar = Ver mi ID)");
+        
+        if (accion) {
+            const idAmigo = prompt("Pega el ID de tu amigo aquí:");
+            if (idAmigo && window.mp) {
+                window.mp.conectarA(idAmigo);
+                alert("Intentando conectar...");
+            }
+        } else {
+            alert("Tu ID es: " + window.miIdPeer + "\n\nCópialo y pásalo a tu amigo.");
+            console.log("Copia este ID:", window.miIdPeer);
+        }
+    };
+</script>
+<script>
+    // Lógica poderosa para el botón de Multijugador
+    const btnMulti = document.getElementById('btn-multiplayer');
+    
+    if(btnMulti) {
+        btnMulti.onclick = () => {
+            if (!window.miIdPeer) {
+                alert("Espera un segundo, el servidor de Salamandra está arrancando...");
+                return;
+            }
+
+            const salaLink = window.location.origin + window.location.pathname + "?sala=" + window.miIdPeer;
+            
+            navigator.clipboard.writeText(salaLink).then(() => {
+                // Cambiamos el texto del botón temporalmente para que se vea pro
+                const originalText = btnMulti.innerText;
+                btnMulti.innerText = "¡LINK COPIADO!";
+                btnMulti.style.background = "#00ff00";
+                btnMulti.style.color = "#000";
+                
+                setTimeout(() => {
+                    btnMulti.innerText = originalText;
+                    btnMulti.style.background = "white";
+                    btnMulti.style.color = "black";
+                }, 2000);
+
+                console.log("%c[SISTEMA] Link de invitación generado: " + salaLink, "color: #00ff00;");
+            });
+        };
+    }
+</script>
