@@ -291,7 +291,10 @@ import { Multiplayer } from './js/functions/multiplayer.js';
             if (sistemaNPC) sistemaNPC.actualizar();
             gestionarSalto(jugador, sDat);
             actualizarAnimacion(jugador, andando);
-            if(!gamePaused) mp.enviarMiPosicion();
+            if(!gamePaused && window.mp) {
+                mp.enviarMiPosicion(andando);
+                mp.actualizarClones();
+            }
             renderer.render(scene, camera);
         }
 
