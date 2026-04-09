@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { crearSalamandra } from '../modelos/salamandra.js';
+import { actualizarAnimacion } from '../animaciones/animacion.js';
 
 export class Multiplayer {
     constructor(scene, jugadorPrincipal) {
@@ -22,9 +23,7 @@ export class Multiplayer {
         const urlParams = new URLSearchParams(window.location.search);
         const room = urlParams.get('sala');
         if (room) {
-            console.log("%c[NET] Entrando a la sala de tu compa...", "color: #ffff00;");
             this.conectarA(room);
-            // Limpia la URL para que no se reconecte al recargar
             window.history.replaceState({}, document.title, window.location.pathname);
         }
     }
@@ -44,24 +43,33 @@ export class Multiplayer {
 
     update(d) {
         if (!this.otrosJugadores[d.id]) {
-            console.log("%c[NET] Una nueva Salamandra entró al mundo", "color: #ff00ff;");
+            console.log("%c[NET] Nueva Salamandra detectada", "color: #ff00ff;");
             const clon = crearSalamandra();
             this.scene.add(clon);
-            this.otrosJugadores[d.id] = clon;
+            this.otrosJugadores[d.id] = { modelo: clon, moviendose: false };
         }
-        const p = this.otrosJugadores[d.id];
-        p.position.set(d.x, d.y, d.z);
-        p.rotation.y = d.rot;
+        const pj = this.otrosJugadores[d.id];
+        pj.modelo.position.set(d.x, d.y, d.z);
+        pj.modelo.rotation.y = d.rot;
+        pj.moviendose = d.andando; // Guardamos si el otro se mueve
     }
 
-    enviarMiPosicion() {
+    // Función para que los clones respiren y caminen
+    actualizarClones() {
+        Object.values(this.otrosJugadores).forEach(pj => {
+            actualizarAnimacion(pj.modelo, pj.moviendose);
+        });
+    }
+
+    enviarMiPosicion(andando) {
         if (this.conexiones.length === 0) return;
         const data = {
             id: this.peer.id,
             x: this.jugadorPrincipal.position.x,
             y: this.jugadorPrincipal.position.y,
             z: this.jugadorPrincipal.position.z,
-            rot: this.jugadorPrincipal.rotation.y
+            rot: this.jugadorPrincipal.rotation.y,
+            andando: andando // Enviamos nuestro estado actual
         };
         this.conexiones.forEach(c => { if (c.open) c.send(data); });
     }
