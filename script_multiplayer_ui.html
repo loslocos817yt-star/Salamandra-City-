@@ -1,0 +1,15 @@
+<script>
+    document.getElementById('btn-multiplayer').onclick = () => {
+        if (!window.mp) return;
+
+        const link = window.mp.crearLinkInvitacion();
+        
+        // Copiar al portapapeles
+        navigator.clipboard.writeText(link).then(() => {
+            alert("¡Link de invitación copiado!\n\nPásaselo a tu amigo para que aparezca en tu mapa.");
+        }).catch(err => {
+            // Fallback por si el navegador bloquea el clipboard
+            prompt("Copia este link y pásalo a tu amigo:", link);
+        });
+    };
+</script>
