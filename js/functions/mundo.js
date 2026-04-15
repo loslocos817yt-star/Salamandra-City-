@@ -1,9 +1,10 @@
 /**
  * ============================================================================
- * MÓDULO DE GENERACIÓN DE MAPA Y LÓGICA DE ENTORNO
- * Optimizado para alto rendimiento y prevención de colapsos (Crashes).
+ * M脫DULO DE GENERACI脫N DE MAPA Y L脫GICA DE ENTORNO
+ * Optimizado para alto rendimiento y prevenci贸n de colapsos (Crashes).
  * ============================================================================
  */
+import { crearOxxo } from "../modelos/oxxo.js";
 
 import * as THREE from 'three';
 import { crearCasa } from '../modelos/casa.js';
@@ -12,16 +13,16 @@ import { crearArbol } from '../modelos/arbol.js';
 import { crearArbusto } from '../modelos/arbusto.js';
 import { crearArma } from '../modelos/arma.js';
 import { crearAuto } from '../modelos/auto.js';
-import { crearAntenaTelecom } from '../modelos/antena_telecom.js'; // <-- IMPORTACIÓN NUEVA
+import { crearAntenaTelecom } from '../modelos/antena_telecom.js'; // <-- IMPORTACI脫N NUEVA
 
-// Inicialización segura de la variable global para no sobreescribirla si ya existe
+// Inicializaci贸n segura de la variable global para no sobreescribirla si ya existe
 window.monedasRecolectadas = window.monedasRecolectadas || 0;
 
 /**
- * Función principal para generar el mapa basado en un mapa de píxeles (map.png)
+ * Funci贸n principal para generar el mapa basado en un mapa de p铆xeles (map.png)
  * @param {THREE.Scene} scene - La escena principal de Three.js
- * @param {Array} casas - Array para almacenar datos de colisión de casas
- * @param {Array} edificios - Array para almacenar datos de colisión de edificios
+ * @param {Array} casas - Array para almacenar datos de colisi贸n de casas
+ * @param {Array} edificios - Array para almacenar datos de colisi贸n de edificios
  * @param {Array} lootsEnMapa - Array para armas u objetos interactivos
  * @param {THREE.Object3D} salamandra - El objeto del jugador (puede ser null al inicio)
  */
@@ -30,7 +31,7 @@ export function generarMapa(scene, casas, edificios, lootsEnMapa, salamandra) {
     const aceraGrid = new Set();
     let miAuto = null;
     
-    // Zonas de agua para detectar cuándo cae el jugador y rebotarlo
+    // Zonas de agua para detectar cu谩ndo cae el jugador y rebotarlo
     const zonasAgua = []; 
     
     // Array estricto para gestionar el ciclo de vida de las monedas
@@ -39,11 +40,11 @@ export function generarMapa(scene, casas, edificios, lootsEnMapa, salamandra) {
     // Array para gestionar las antenas y sus animaciones de luces
     const antenas = []; // <-- ARRAY NUEVO
     
-    // Almacenamos las coordenadas exactas de cada moneda para calcular la separación
+    // Almacenamos las coordenadas exactas de cada moneda para calcular la separaci贸n
     const posicionesMonedasGeneradas = [];
 
-    // --- CONFIGURACIÓN ESTRICTA DE MONEDAS ---
-    // 150 unidades/píxeles de separación mínima radial obligatoria
+    // --- CONFIGURACI脫N ESTRICTA DE MONEDAS ---
+    // 150 unidades/p铆xeles de separaci贸n m铆nima radial obligatoria
     const DISTANCIA_MINIMA_MONEDAS = 150; 
     
     // Cargador de texturas con manejo de errores nivel Rockstar
@@ -58,7 +59,7 @@ export function generarMapa(scene, casas, edificios, lootsEnMapa, salamandra) {
         },
         undefined,
         (err) => {
-            console.error("%c[Error Físico] No se encontró 'recursos/game/moneda.png'. Verifica la ruta.", "color: #ff0000; font-size: 14px;");
+            console.error("%c[Error F铆sico] No se encontr贸 'recursos/game/moneda.png'. Verifica la ruta.", "color: #ff0000; font-size: 14px;");
         }
     );
 
@@ -84,7 +85,7 @@ export function generarMapa(scene, casas, edificios, lootsEnMapa, salamandra) {
             opacity: 0.6,         // Nivel de transparencia
             roughness: 0.1,       // Casi nada rasposo (refleja chido)
             transmission: 0.8,    // Efecto cristalino/agua
-            thickness: 1.0        // Grosor simulado para refracción
+            thickness: 1.0        // Grosor simulado para refracci贸n
         });
 
         const matAcera = new THREE.MeshStandardMaterial({ color: 0x8a8a8a });
@@ -93,18 +94,18 @@ export function generarMapa(scene, casas, edificios, lootsEnMapa, salamandra) {
         // CILINDRO PARA AGUA: Suaviza las esquinas y evita el efecto de bloque duro
         const geoAgua = new THREE.CylinderGeometry(sep * 0.55, sep * 0.55, 0.1, 16); 
 
-        // Función utilitaria para tolerancia de color (antialiasing prevention)
+        // Funci贸n utilitaria para tolerancia de color (antialiasing prevention)
         const colorCercano = (r1, g1, b1, r2, g2, b2) => {
             return Math.abs(r1 - r2) <= 8 && Math.abs(g1 - g2) <= 8 && Math.abs(b1 - b2) <= 8;
         };
 
-        // Función de escaneo espacial: Verifica si hay OTRA moneda a menos de 150 píxeles
+        // Funci贸n de escaneo espacial: Verifica si hay OTRA moneda a menos de 150 p铆xeles
         const zonaLibreParaMoneda = (x, z) => {
             for (let i = 0; i < posicionesMonedasGeneradas.length; i++) {
                 const pos = posicionesMonedasGeneradas[i];
                 const deltaX = x - pos.x;
                 const deltaZ = z - pos.z;
-                // Teorema de Pitágoras para distancia radial real
+                // Teorema de Pit谩goras para distancia radial real
                 const distancia = Math.sqrt((deltaX * deltaX) + (deltaZ * deltaZ));
                 
                 if (distancia < DISTANCIA_MINIMA_MONEDAS) {
@@ -114,29 +115,29 @@ export function generarMapa(scene, casas, edificios, lootsEnMapa, salamandra) {
             return true; // Zona despejada, se puede spawnear
         };
 
-        // Escaneo de la imagen píxel por píxel
+        // Escaneo de la imagen p铆xel por p铆xel
         for (let y = 0; y < canvas.height; y++) {
             for (let x = 0; x < canvas.width; x++) {
                 const i = (y * canvas.width + x) * 4;
                 const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
 
-                // Ignorar píxeles transparentes
+                // Ignorar p铆xeles transparentes
                 if (a < 128) continue; 
 
                 const px = (x - canvas.width / 2) * sep;
                 const pz = (y - canvas.height / 2) * sep;
                 let obj = null;
 
-                // --- MONTAÑAS (0, 179, 8) -> #00B308 ---
+                // --- MONTA脩AS (0, 179, 8) -> #00B308 ---
                 if (colorCercano(r, g, b, 0, 179, 8)) {
                     const altura = 5 + Math.random() * 15; 
-                    const geoMontaña = new THREE.BoxGeometry(sep, altura, sep);
+                    const geoMonta帽a = new THREE.BoxGeometry(sep, altura, sep);
                     
                     const colors = [];
                     const colorPiedra = new THREE.Color(0x888888);
                     const colorPasto = new THREE.Color(0x228B22);
                     
-                    const posicionAtributo = geoMontaña.attributes.position;
+                    const posicionAtributo = geoMonta帽a.attributes.position;
                     for (let j = 0; j < posicionAtributo.count; j++) {
                         if (posicionAtributo.getY(j) > 0) {
                             colors.push(colorPiedra.r, colorPiedra.g, colorPiedra.b);
@@ -144,14 +145,14 @@ export function generarMapa(scene, casas, edificios, lootsEnMapa, salamandra) {
                             colors.push(colorPasto.r, colorPasto.g, colorPasto.b);
                         }
                     }
-                    geoMontaña.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+                    geoMonta帽a.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
                     
-                    const matMontaña = new THREE.MeshStandardMaterial({ 
+                    const matMonta帽a = new THREE.MeshStandardMaterial({ 
                         vertexColors: true, 
                         roughness: 0.9 
                     });
                     
-                    obj = new THREE.Mesh(geoMontaña, matMontaña);
+                    obj = new THREE.Mesh(geoMonta帽a, matMonta帽a);
                     obj.position.y = altura / 2; 
                 }
                 // --- AGUA NUEVA Y FUNCIONAL (Bordes Redondeados) ---
@@ -161,7 +162,7 @@ export function generarMapa(scene, casas, edificios, lootsEnMapa, salamandra) {
                     obj.userData = { esAgua: true, fuerzaRebote: 0.5 };
                     zonasAgua.push(obj); 
                 }
-                // --- ACERA Y GENERACIÓN DE MONEDAS ---
+                // --- ACERA Y GENERACI脫N DE MONEDAS ---
                 else if (colorCercano(r, g, b, 138, 138, 138)) {
                     obj = new THREE.Mesh(geoPlano, matAcera);
                     obj.rotation.x = -Math.PI / 2;
@@ -172,26 +173,26 @@ export function generarMapa(scene, casas, edificios, lootsEnMapa, salamandra) {
                     if (zonaLibreParaMoneda(px, pz)) {
                         const geoMoneda = new THREE.PlaneGeometry(1.5, 1.5); 
                         
-                        // MeshBasicMaterial ignora luces, haciéndola brillar siempre
+                        // MeshBasicMaterial ignora luces, haci茅ndola brillar siempre
                         const matMoneda = new THREE.MeshBasicMaterial({ 
                             map: texturaMoneda, 
                             transparent: true, 
                             side: THREE.DoubleSide, // Visible desde ambos lados al girar
-                            alphaTest: 0.1 // Evita bordes blancos extraños
+                            alphaTest: 0.1 // Evita bordes blancos extra帽os
                         });
                         
                         const monedaObj = new THREE.Mesh(geoMoneda, matMoneda);
                         monedaObj.position.set(px, 0.8, pz); // Altura inicial flotando
                         monedaObj.userData = { 
                             esMoneda: true, 
-                            alturaBase: 0.8, // Para la animación de flotar
+                            alturaBase: 0.8, // Para la animaci贸n de flotar
                             desfaseOnda: Math.random() * Math.PI * 2 // Para que no floten todas igual
                         };
                         
                         scene.add(monedaObj);
                         monedas.push(monedaObj);
                         
-                        // Registrar en la cuadrícula de distancias para bloquear spawns cercanos
+                        // Registrar en la cuadr铆cula de distancias para bloquear spawns cercanos
                         posicionesMonedasGeneradas.push({ x: px, z: pz });
                     }
 
@@ -202,21 +203,22 @@ export function generarMapa(scene, casas, edificios, lootsEnMapa, salamandra) {
                         scene.add(miAuto);
                     }
                 }
-                // --- ANTENA DE TELECOMUNICACIONES (NUEVO PÍXEL: MAGENTA) ---
+                // --- ANTENA DE TELECOMUNICACIONES (NUEVO P脥XEL: MAGENTA) ---
                 else if (colorCercano(r, g, b, 255, 0, 255)) { 
                     obj = crearAntenaTelecom(); 
-                    // Se añade a colisiones de edificios para que el jugador no la atraviese
+                    // Se a帽ade a colisiones de edificios para que el jugador no la atraviese
                     edificios.push({ mesh: obj, radio: 1.5 }); 
                     antenas.push(obj); // Se guarda en el array para animar sus luces
                 }
-                // --- RESTO DE OBJETOS (Casas, Edificios, Armas, Vegetación) ---
+                // --- RESTO DE OBJETOS (Casas, Edificios, Armas, Vegetaci贸n) ---
+                else if (colorCercano(r, g, b, 255, 165, 0)) { obj = crearOxxo(); edificios.push({ mesh: obj, radio: 3.5 }); }
                 else if (colorCercano(r, g, b, 208, 255, 0)) { obj = crearCasa(); casas.push({ mesh: obj, radio: 1.8 }); }
                 else if (colorCercano(r, g, b, 255, 0, 0)) { obj = crearEdificio(); edificios.push({ mesh: obj, radio: 2.5 }); }
                 else if (colorCercano(r, g, b, 0, 0, 255)) { obj = crearArma(); lootsEnMapa.push(obj); }
                 else if (colorCercano(r, g, b, 111, 78, 55)) { obj = crearArbol(); }
                 else if (colorCercano(r, g, b, 173, 235, 179)) { obj = crearArbusto(); }
                 
-                // --- ESPACIO VACÍO (Generación aleatoria procedural de vegetación) ---
+                // --- ESPACIO VAC脥O (Generaci贸n aleatoria procedural de vegetaci贸n) ---
                 else {
                     const azar = Math.random();
                     if (azar < 0.10) { 
@@ -226,14 +228,14 @@ export function generarMapa(scene, casas, edificios, lootsEnMapa, salamandra) {
                     }
                 }
 
-                // Añadir el objeto a la escena si se creó algo en este píxel
+                // A帽adir el objeto a la escena si se cre贸 algo en este p铆xel
                 if (obj) {
                     obj.position.set(px, obj.position.y, pz);
                     scene.add(obj);
                 }
             }
         }
-        console.log(`%c[Mundo] ¡Mapa Listo! Se generaron ${monedas.length} monedas y ${antenas.length} antenas.`, "color: #00ffff; font-weight: bold;");
+        console.log(`%c[Mundo] 隆Mapa Listo! Se generaron ${monedas.length} monedas y ${antenas.length} antenas.`, "color: #00ffff; font-weight: bold;");
     };
 
     /**
@@ -243,21 +245,21 @@ export function generarMapa(scene, casas, edificios, lootsEnMapa, salamandra) {
         zonasAgua: zonasAgua, 
 
         /**
-         * Función que debe llamarse en cada Frame (requestAnimationFrame)
-         * @param {Object} joystickMov - Vector de movimiento del vehículo
+         * Funci贸n que debe llamarse en cada Frame (requestAnimationFrame)
+         * @param {Object} joystickMov - Vector de movimiento del veh铆culo
          */
         actualizar: (joystickMov) => { 
             
             const tiempoTick = Date.now() * 0.003; // Reloj para animaciones fluidas
 
             // ====================================================================
-            // LÓGICA DE ANTENAS: PARPADEO DE BALIZAS (NUEVO)
+            // L脫GICA DE ANTENAS: PARPADEO DE BALIZAS (NUEVO)
             // ====================================================================
             antenas.forEach((antena, index) => {
-                // Alterna encendido/apagado usando una onda sinusoidal desfasada por el índice
+                // Alterna encendido/apagado usando una onda sinusoidal desfasada por el 铆ndice
                 const luzEncendida = Math.sin(tiempoTick * 1.5 + index) > 0;
                 
-                // Busca automáticamente las mallas con material rojo emisivo para hacerlas parpadear
+                // Busca autom谩ticamente las mallas con material rojo emisivo para hacerlas parpadear
                 antena.children.forEach(hijo => {
                     if (hijo.material && hijo.material.emissive && hijo.material.emissive.getHex() === 0xff0000) {
                         hijo.material.emissiveIntensity = luzEncendida ? 3 : 0;
@@ -266,35 +268,35 @@ export function generarMapa(scene, casas, edificios, lootsEnMapa, salamandra) {
             });
 
             // ====================================================================
-            // LÓGICA DE MONEDAS: GIRO, FLOTACIÓN Y COLISIONES SEGUROS
+            // L脫GICA DE MONEDAS: GIRO, FLOTACI脫N Y COLISIONES SEGUROS
             // ====================================================================
-            // IMPORTANTE: Recorremos el array de ATRÁS hacia ADELANTE.
+            // IMPORTANTE: Recorremos el array de ATR脕S hacia ADELANTE.
             // Esto evita que el motor crashee al usar 'splice' para borrar elementos
             for (let i = monedas.length - 1; i >= 0; i--) {
                 const moneda = monedas[i];
                 
-                // 1. Animación Rockstar: Giro sobre su eje Y
+                // 1. Animaci贸n Rockstar: Giro sobre su eje Y
                 moneda.rotation.y += 0.04; 
                 
-                // 2. Animación Rockstar: Flotación suave usando curva Senoidal (Math.sin)
+                // 2. Animaci贸n Rockstar: Flotaci贸n suave usando curva Senoidal (Math.sin)
                 const offsetFlote = Math.sin(tiempoTick + moneda.userData.desfaseOnda) * 0.15;
                 moneda.position.y = moneda.userData.alturaBase + offsetFlote;
 
                 // 3. Sistema Blindado de Colisiones
-                // Si 'salamandra' aún no carga en el main.js, usamos window.salamandra como backup.
-                // Si de plano no existe, simplemente saltamos la colisión este frame, SIN CRASHEAR.
+                // Si 'salamandra' a煤n no carga en el main.js, usamos window.salamandra como backup.
+                // Si de plano no existe, simplemente saltamos la colisi贸n este frame, SIN CRASHEAR.
                 const jugadorDetectado = salamandra || window.salamandra;
                 
                 if (jugadorDetectado && jugadorDetectado.position) {
                     // Calculamos distancia real en 3D
                     const distanciaAlJugador = moneda.position.distanceTo(jugadorDetectado.position);
                     
-                    // Si el jugador está a menos de 2 unidades, recogemos la moneda
+                    // Si el jugador est谩 a menos de 2 unidades, recogemos la moneda
                     if (distanciaAlJugador < 2) {
                         // A) Quitar visualmente de la escena
                         scene.remove(moneda); 
                         
-                        // B) Liberar memoria de geometría y material (Optimización Rockstar)
+                        // B) Liberar memoria de geometr铆a y material (Optimizaci贸n Rockstar)
                         moneda.geometry.dispose();
                         moneda.material.dispose();
                         
@@ -302,21 +304,21 @@ export function generarMapa(scene, casas, edificios, lootsEnMapa, salamandra) {
                         window.monedasRecolectadas += 1; 
                         console.log(`%c[Loot] Moneda recogida. Total: ${window.monedasRecolectadas}`, "color: #ffff00");
                         
-                        // D) Eliminarla del array para no procesarla más (seguro gracias al bucle inverso)
+                        // D) Eliminarla del array para no procesarla m谩s (seguro gracias al bucle inverso)
                         monedas.splice(i, 1);
                     }
                 }
             }
 
             // ====================================================================
-            // LÓGICA DE AUTO Y JOYSTICK
+            // L脫GICA DE AUTO Y JOYSTICK
             // ====================================================================
             if (miAuto && joystickMov) {
                 const vel = 0.25;
                 const nx = miAuto.position.x + (joystickMov.x * vel);
                 const nz = miAuto.position.z - (joystickMov.y * vel);
                 
-                // Sistema de cuadrícula para validar si el auto sigue en la acera
+                // Sistema de cuadr铆cula para validar si el auto sigue en la acera
                 const gridX = Math.round(nx / 5) * 5;
                 const gridZ = Math.round(nz / 5) * 5;
 
@@ -324,12 +326,12 @@ export function generarMapa(scene, casas, edificios, lootsEnMapa, salamandra) {
                     miAuto.position.x = nx;
                     miAuto.position.z = nz;
                     
-                    // Rotar auto basado en la dirección del joystick
+                    // Rotar auto basado en la direcci贸n del joystick
                     if (Math.abs(joystickMov.x) > 0.1 || Math.abs(joystickMov.y) > 0.1) {
                         miAuto.rotation.y = Math.atan2(joystickMov.x, joystickMov.y);
                     }
                     
-                    // Actualizar físicas de las llantas si existen
+                    // Actualizar f铆sicas de las llantas si existen
                     if (miAuto.userData.actualizarLlantas) {
                         miAuto.userData.actualizarLlantas(0.15);
                     }
